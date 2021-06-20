@@ -1,0 +1,251 @@
+<html>
+  <head>
+   <title>Cryptocurrency Dashboard</title>
+
+     <link rel="stylesheet" href="marketbutton.css"> 
+      
+    <script src="tabs.js"></script>
+      <link rel="icon" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRpUxUyWShyxtw5Un7BAxcHP67j0qzPoyHkbA&usqp=CAU&ec=45761791" type="image/gif" sizes="16x16">
+      
+      
+      
+    <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>      
+      
+      
+
+  <div id="display"></div>
+
+            <h1>Market Watch</h1>
+
+            <button onclick="check()">Click me for list</button>
+
+            <select id="type", class="type">
+                <option>Pick Currency</option>
+            </select>
+
+            <button onclick="display()">Click me for Value</button>
+
+            <div id="ccImg"></div>
+            <div id="ccName"></div>
+
+            <script>
+
+                const select = document.querySelectorAll('select:not(.type)');
+                const input = document.querySelectorAll('input');
+                const API_URL = "https://api.exchangeratesapi.io/latest";
+                let html = '';
+            
+                async function currency(){
+                    const res = await fetch(API_URL)
+                    const data = await res.json();
+                    const  arrKeys = Object.keys(data.rates);
+                    const rates = data.rates;
+                
+                    arrKeys.map(item =>{
+                        return html += `<option value=${item}>${item}</option>`;
+                });
+                
+                    for(let i=0; i<select.length; i++){
+                        select[i].innerHTML = html;
+                    };
+                    
+                    function convert(i,j){
+                        input[i].value = input[j].value * rates[select[i].value] / rates[select[j].value];
+                    }
+                    
+                    input[0].addEventListener('keyup', ()=> convert(1,0));
+                    
+                    input[0].addEventListener('keyup', ()=> convert(0,1));
+                    
+                    select[0].addEventListener('keyup', ()=> convert(1,0));
+                    
+                    select[0].addEventListener('keyup', ()=> convert(0,1)); 
+                
+                };
+            
+                currency();
+        
+            </script>
+        
+            <script>
+        
+                var root = "https://api.coingecko.com/api/v3";
+                var xhr = new XMLHttpRequest();
+        
+                async function check() {
+                    
+                    await checkOpen();
+                    await checkLog();
+                    await checkSend();
+        
+                }
+        
+                async function checkOpen() {
+        
+                    xhr.open("GET", root + "/coins");
+        
+                };
+        
+                async function checkLog() {
+        
+                    xhr.onreadystatechange = function() {
+                        if(this.readyState === 4 && this.status === 200) {
+                            var response = JSON.parse(this.responseText);
+                            console.log(response);
+                            for(i in response) {
+                                var id = response[i].id
+                                console.log(id)
+                                var option = document.createElement("option");
+                                option.text = id;
+                                document.getElementById("type").add(option)
+                            };
+                        };
+                    };
+                };
+        
+                async function checkSend() {
+        
+                    xhr.send();
+        
+                };
+        
+                async function display() {
+        
+                    await displayOpen();
+                    await displayLog();
+                    await displaySend();
+                    
+                };
+        
+                async function displayOpen() {
+        
+                    var currency = document.getElementById("type").value
+        
+                    xhr.open("GET", root + "/coins/" + currency);
+        
+                };
+        
+                async function displayLog() {
+        
+                    xhr.onreadystatechange = function() {
+                        if(this.readyState === 4 && this.status === 200) {
+                            var response = JSON.parse(this.responseText);
+                            console.log(response.market_data.current_price.cad);
+                            document.getElementById("ccImg").innerHTML = "<img src='" + response.image.thumb + "'>"
+                            document.getElementById("ccName").innerHTML = response.name + ": $" + response.market_data.current_price.cad +" CAD"};
+                    };
+                };
+        
+                async function displaySend() {
+        
+                    xhr.send();
+        
+                };
+        
+            </script>
+        
+        </body>
+        
+        
+        </div> 
+        </div>
+            
+        <body>
+          <div class="container">
+            <canvas id="myChart"></canvas>
+          </div>
+        
+          <script>
+            let myChart = document.getElementById('myChart').getContext('2d');
+        
+            // Global Options
+            Chart.defaults.global.defaultFontFamily = 'Lato';
+            Chart.defaults.global.defaultFontSize = 18;
+            Chart.defaults.global.defaultFontColor = '#777';
+        
+            let massPopChart = new Chart(myChart, {
+              type:'line', 
+              data:{
+                labels:['Jan 1, 2021','Jan 15, 2021', 'Jan 25, 2021', 'May 20, 2021', 'May 29, 2021', 'June 1, 2021, June 19, 2021,'],
+                datasets:[{
+                  label:'Bitcoin',
+                  data:[28994.01, 39156.71, 32285.80, 490002.75, 442800.43, 44401.50], },{
+                    
+                    label:'Ethereum',
+                        data:[737.71, 1221.88,	1390.64, 3347.50, 3178.88, 2699.00]},{
+                        
+                        label:'Polkadot',
+                        data:[ 9.29, 14.52, 18.00, 29.15, 22.81, 20.26]},{
+                            
+                        label:'Tether',
+                        data:[ 1.00, 0.9990, 1.00, 1.0019, 1.0001, 1.0015 ]},{
+                            
+                        label:'XRP',
+                        data:[0.2198, 0.2956, 0.2735, 1.185537, 1.011001, 0.753614],
+                    
+                    
+                    
+                    
+                  //backgroundColor:'green',
+                  backgroundColor:[
+                    'rgba(255, 99, 132, 0.6)',
+                    'rgba(54, 162, 235, 0.6)',
+                    'rgba(255, 206, 86, 0.6)',
+                    'rgba(75, 192, 192, 0.6)',
+                    'rgba(153, 102, 255, 0.6)',
+                    'rgba(255, 159, 64, 0.6)',
+                    'rgba(255, 99, 132, 0.6)'
+                  ],
+                  borderWidth:1,
+                  borderColor:'#777',
+                  hoverBorderWidth:3,
+                  hoverBorderColor:'#000'
+                }]
+                
+              },
+                
+                
+              options:{
+                title:{
+                  display:true,
+                  text:'Top 5 Crytocurrency',
+                  fontSize:25
+                },
+                legend:{
+                  display:true,
+                  position:'right',
+                  labels:{
+                    fontColor:'#000'
+                  }
+                },
+                layout:{
+                  padding:{
+                    left:50,
+                    right:0,
+                    bottom:0,
+                    top:0
+                  }
+                },
+                tooltips:{
+                  enabled:true
+                }
+              }
+            });
+          </script>
+        </body>
+    
+    
+</div>
+
+
+
+
+
+     
+
+    
+ 
+ 
